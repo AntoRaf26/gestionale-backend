@@ -7,12 +7,20 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   try {
     const appointments = await Appointment.find()
-      .populate("client")
-      .populate("service")
-      .populate("operator");
-    res.json(appointments);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  .populate("client")
+  .populate("operator")
+  .populate("services");
+
+const formatted = appointments.map(a => {
+  // Se esiste solo "service" singolo, converti in array
+  if (!a.services && a.service) {
+    a.services = [a.service];
+  }
+  return a;
+});
+
+res.json(formatted);
+
   }
 });
 
