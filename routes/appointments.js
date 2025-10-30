@@ -11,20 +11,24 @@ router.get("/", async (req, res) => {
       .populate("operator")
       .populate("services");
 
-    // 🔹 Compatibilità con vecchi record (service singolo)
-    const formatted = appointments.map((a) => {
-      if (!a.services && a.service) {
-        a.services = [a.service];
-      }
-      return a;
-    });
+    // 🔹 Rende i dati "piatti" e JSON-friendly
+    const formatted = appointments.map((a) => ({
+      _id: a._id,
+      client: a.client,
+      operator: a.operator,
+      services: a.services,
+      start: a.start,
+      end: a.end,
+      title: `${a.client?.name || "Cliente"} - ${a.services?.[0]?.name || ""}`,
+    }));
 
-    res.json(formatted);
+    res.status(200).json(formatted.flat());
   } catch (err) {
     console.error("Errore GET /appointments:", err);
     res.status(500).json({ error: err.message });
   }
 });
+
 
 // 📌 POST: nuovo appuntamento
 router.post("/", async (req, res) => {
