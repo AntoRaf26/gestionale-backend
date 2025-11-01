@@ -76,5 +76,31 @@ router.get("/", async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+/* =========================================================
+   AGGIORNA UN APPUNTAMENTO (spostamento o modifica orario)
+========================================================= */
+router.put("/:id", async (req, res) => {
+  try {
+    const { start, end, operator } = req.body;
+
+    const updated = await Appointment.findByIdAndUpdate(
+      req.params.id,
+      { start, end, operator },
+      { new: true }
+    )
+      .populate("client")
+      .populate("operator")
+      .populate("services");
+
+    if (!updated) {
+      return res.status(404).json({ message: "Appuntamento non trovato" });
+    }
+
+    res.json(updated);
+  } catch (error) {
+    console.error("❌ Errore PUT /appointments/:id:", error);
+    res.status(500).json({ message: error.message });
+  }
+});
 
 export default router;
